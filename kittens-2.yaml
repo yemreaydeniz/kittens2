@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  EC2ApacheInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0b5eea76982371e91
+      InstanceType: t2.micro
+      Tags:
+        - Key: Name
+          Value: Kitten-Project
+        - Key: Name
+          Value: Project1-Kitten
+      UserData: 
+        Fn::Base64:
+          !Sub |
+            #! /bin/bash
+            yum update -y
+            yum install -y httpd
+            systemctl start httpd
+            chmod 777 /var/www/html
+            cd /var/www/html
+            yum install git -y
+            git clone https://github.com/yemreaydeniz/kittens2.git .
+            systemctl restart httpd
+            systemctl enable httpd /var/www/html/index.html
+      SecurityGroups:
+        - !Ref MySecGr
+      KeyName: first-key
+
+  MySecGr:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "MySecGr"
+      GroupDescription: MySecGr
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          CidrIp: "0.0.0.0/0"
+          FromPort: 22
+          ToPort: 22
+        - IpProtocol: "tcp"
+          CidrIp: "0.0.0.0/0"
+          FromPort: 80
+          ToPort: 80
+        
+
